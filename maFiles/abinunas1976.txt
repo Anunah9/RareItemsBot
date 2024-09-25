@@ -1,0 +1,3 @@
+{"shared_secret":"ez79wxKlOvHfEj3yf5hFvFnxdUo=",
+"identity_secret":"B0TXjKGR5DSrq05yUWLITCJG7hQ=",
+"steamid":"76561199065651161"}
