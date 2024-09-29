@@ -43,12 +43,10 @@ class SteamMarketMethods:
         if not self.steamclient.is_session_alive():
             print('write')
             self.write_login()
+
             if not self.steamclient.is_session_alive():
                 print('Не получилось ')
 
-    def login_required(self):
-        check = self.steamclient.is_session_alive()
-        print('Is session alive: ', check)
 
     @staticmethod
     def load_login(path_login_file: str) -> steampy.client.SteamClient:
