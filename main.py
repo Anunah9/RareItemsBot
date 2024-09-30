@@ -223,7 +223,9 @@ def item_handler(item_obj: Item, counter):
                 elif autobuy or send_info:
                     params.bot.send_message(368333609, message)  # Я
     except steampy.exceptions.ApiException as exc:
-        print('Ошибка 214 строка')
+        print(exc)
+        params.bot.send_message(368333609, exc)  # Я
+    except Exception as exc:
         print(exc)
         params.bot.send_message(368333609, exc)  # Я
 
