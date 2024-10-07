@@ -17,7 +17,7 @@ class VPN:
     disconnect = False
     process = None
     test_url = None
-    path_configs = r'C:\Users\Sasha\Desktop\openVpn\configs'
+    path_configs = r'/home/bot/Desktop/configs'
     current_ip = None
 
     def __init__(self, test_url=None):
@@ -65,6 +65,7 @@ class VPN:
 
     @staticmethod
     def db_connect():
+        print(__name__ )
         if __name__ == '__main__':
             db_name = '../db/CS.db'
         else:
@@ -72,13 +73,13 @@ class VPN:
         return sqlite3.connect(db_name)
 
     def connect_to_vpn(self, config_path: Path):
-        args = [r'C:\Program Files\OpenVPN\bin\openvpn.exe',
-                '--config',
-                config_path]
-        shell = fr'"C:\Program Files\OpenVPN\bin\openvpn.exe" --config "{config_path}" '
-        # shell_linux = subprocess.Popen(["sudo", "openvpn", "--config", config_path])
+        #subprocess.Popen('Taskkill /IM openvpn.exe /F')args = [r'C:\Program Files\OpenVPN\bin\openvpn.exe',
+        #        '--config',
+        #        config_path]
+        # shell = fr'"C:\Program Files\OpenVPN\bin\openvpn.exe" --config "{config_path}" '
+        shell_linux = ['sudo', "openvpn", "--config", config_path]
         self.process = subprocess.Popen(
-            shell, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE
+            shell_linux, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE
         )
 
     def get_config_files(self):
@@ -128,13 +129,17 @@ class VPN:
     
     @staticmethod
     def kill_old_vpn_connections():
-        subprocess.Popen('Taskkill /IM openvpn.exe /F')
+        # subprocess.Popen('Taskkill /IM openvpn.exe /F')
+        subprocess.Popen(['sudo', 'killall', 'openvpn'])
         time.sleep(5)
 
     def disconnect_vpn(self):
         print('Выполняюю выключение')
         self.process.terminate()
-        self.process.wait(timeout=5)
+        try:
+            self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            print('Не удалось завершить процесс TimeoutError')
         self.connected = False
 
     def __check_connection__(self, test_url=None, ):
@@ -163,7 +168,10 @@ class VPN:
         print('Выполняю отключение VPN')
         to_db(self.config_name, None, None, datetime.datetime.now(), True, self.cs_db)
         self.process.terminate()
-        self.process.wait(timeout=5)
+        try:
+            self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            print('Не удалось завершить Timeout error')
         return False
 
 
@@ -225,17 +233,15 @@ def main1():
 
 
 if __name__ == '__main__':
-    path_to_config_folder = r'C:\Users\Sasha\Desktop\openVpn\configs'
+    path_to_config_folder = r'home/bot/Desktop/configs'
     config_name = '219.100.37.163_tcp_443.ovpn'
     result_path = path_to_config_folder + "\\" + config_name
     print(result_path)
     vpn = VPN('https://steamcommunity.com/market/listings/730/AK-47%20%7C%20Slate%20%28Field-Tested%29')
-    con = sqlite3.connect('../db/CS.db')
     # vpn.connect_to_vpn(result_path)
     # vpn.connect_to_random_config()
-    # vpn.reconnect_before_connect_to_good_config()
-    # vpn.disconnect_vpn()
-    vpn.kill_old_vpn_connections()
+    vpn.reconnect_before_connect_to_good_config()
+    vpn.reconnect_vpn()
     # asyncio.get_event_loop().run_until_complete(main(vpn))
 
     # main1()
