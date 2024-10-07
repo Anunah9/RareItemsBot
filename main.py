@@ -255,7 +255,7 @@ def items_iterator(item_name, item_link, listings):
         print(f'listing №{counter}')
         add_to_checked(item_name, key)
         item = listings[key]
-        print(item)
+
         item_obj.listing_id = item['listingid']
         try:
             item_obj.price_no_fee = item['converted_price']
@@ -268,12 +268,12 @@ def items_iterator(item_name, item_link, listings):
                 item['asset']['id'])
         except KeyError:
             return False
-        ##########################################################################################################
-        print(item_obj.item_name, item_obj.listing_id, item_obj.price_no_fee + item_obj.fee, item_obj.fee)
-        buy_item(item_obj.item_name, item_obj.listing_id, item_obj.price_no_fee + item_obj.fee, item_obj.fee)
-        print('TEST REQUEST TEST REQUEST TEST REQUEST')
-        time.sleep(100)
-        ##########################################################################################################
+        ###########################################################################################################
+        ## print(item_obj.item_name, item_obj.listing_id, item_obj.price_no_fee + item_obj.fee, item_obj.fee)
+        ## buy_item(item_obj.item_name, item_obj.listing_id, item_obj.price_no_fee + item_obj.fee, item_obj.fee)
+        ## print('TEST REQUEST TEST REQUEST TEST REQUEST')
+        ## time.sleep(100)
+        ###########################################################################################################
         try:
             float_item, stickers = get_item_float_and_stickers(inspect_link)
         except KeyError as exc2:
@@ -344,7 +344,7 @@ class Params:
         self.vpn.kill_old_vpn_connections()
         # self.bot_error_logger.send_message(368333609, 'Обновление цен на стикеры')
         self.update_stickers_prices()
-        # self.connected = self.vpn.reconnect_before_connect_to_good_config()
+        self.connected = self.vpn.reconnect_before_connect_to_good_config()
         self.bot = telebot.TeleBot(API)
         self.bot_error_logger = telebot.TeleBot(API_ErrorLogger)
         self.bot_error_logger.send_message(368333609, 'Готово')
@@ -395,10 +395,10 @@ async def get_listings_from_response(response_text):
     soup = bs4.BeautifulSoup(response_text, 'lxml')
     info = soup.findAll('script', type="text/javascript")[-1]
     result_sting = info.text.split('g_rgListingInfo =')[1].split(';')[0]
-    item_name = info.text.split('"market_hash_name":"')[1].split('","market_actions"')[0]
-    print(item_name)
+    # item_name = info.text.split('"market_hash_name":"')[1].split('","market_actions"')[0]
+    # print(item_name)
     listings = json.loads(result_sting)
-    return item_name, listings
+    return listings
 
 
 def response_429_handler():
@@ -434,6 +434,7 @@ def response_429_handler():
 
 async def fetch_data(session: aiohttp.ClientSession, item, counter):
     url = item[1]
+    item_name = item[0]
     delay = 0.85 * counter
     await asyncio.sleep(delay)
     session.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, ' \
@@ -468,7 +469,7 @@ async def fetch_data(session: aiohttp.ClientSession, item, counter):
         params.counter_for_too_many_request = 0
         try:
             data = await response.text()
-            item_name, listings = await get_listings_from_response(data)
+            listings = await get_listings_from_response(data)
             params.vpn.requests_list.append(time.time() - t1)
         except aiohttp.client_exceptions.ClientPayloadError as exc:
             print(exc)
@@ -504,7 +505,7 @@ async def main():
     start = 0
     while True:
         items = get_items_from_db()
-        items = [('fsdf', 'https://steamcommunity.com/market/listings/730/Desert%20Eagle%20%7C%20Corinthian%20%28Field-Tested%29')]
+        # items = [('fsdf', 'https://steamcommunity.com/market/listings/730/Desert%20Eagle%20%7C%20Corinthian%20%28Field-Tested%29')]
         check_country()
         print('Количество предметов: ', len(items))
         for item in items:
